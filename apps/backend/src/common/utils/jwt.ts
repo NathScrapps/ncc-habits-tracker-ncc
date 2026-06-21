@@ -11,10 +11,18 @@ export type RefreshPayload = {
   sub: string
 }
 
-function getRefreshSecret(): string {
-  const secret = process.env['REFRESH_TOKEN_SECRET'] ?? process.env['REFRESH_SECRET']
+function getJwtSecret(): string {
+  const secret = process.env['JWT_SECRET']?.trim()
   if (!secret) {
-    throw new Error('Missing refresh token secret: set REFRESH_TOKEN_SECRET')
+    throw new Error('Missing JWT secret: set JWT_SECRET')
+  }
+  return secret
+}
+
+function getRefreshSecret(): string {
+  const secret = process.env['REFRESH_TOKEN_SECRET']?.trim() ?? process.env['REFRESH_SECRET']?.trim()
+  if (!secret) {
+    throw new Error('Missing refresh token secret: set REFRESH_TOKEN_SECRET or REFRESH_SECRET')
   }
   return secret
 }
