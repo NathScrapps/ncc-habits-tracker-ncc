@@ -36,7 +36,7 @@ function getRefreshTokenExpiry(): SignOptions['expiresIn'] {
 }
 
 export function signAccessToken(payload: AccessPayload): string {
-  return jwt.sign(payload, process.env['JWT_SECRET']!, {
+  return jwt.sign(payload, getJwtSecret(), {
     expiresIn: getAccessTokenExpiry(),
   })
 }
@@ -48,7 +48,7 @@ export function signRefreshToken(payload: RefreshPayload): string {
 }
 
 export function verifyAccessToken(token: string): AccessPayload {
-  return jwt.verify(token, process.env['JWT_SECRET']!) as AccessPayload
+  return jwt.verify(token, getJwtSecret()) as AccessPayload
 }
 
 export function verifyRefreshToken(token: string): RefreshPayload {
