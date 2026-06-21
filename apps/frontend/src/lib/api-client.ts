@@ -2,6 +2,16 @@ import axios, { type InternalAxiosRequestConfig } from 'axios'
 
 let accessToken: string | null = null
 
+function resolveApiBaseUrl(): string {
+  const configured = import.meta.env.VITE_API_BASE_URL?.trim()
+  if (!configured) return '/api/v1'
+
+  const normalized = configured.replace(/\/+$/, '')
+  return normalized.endsWith('/api/v1') ? normalized : `${normalized}/api/v1`
+}
+
+const API_BASE_URL = resolveApiBaseUrl()
+
 export function setAccessToken(token: string | null): void {
   accessToken = token
 }
@@ -11,7 +21,7 @@ export function getAccessToken(): string | null {
 }
 
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 })
 
