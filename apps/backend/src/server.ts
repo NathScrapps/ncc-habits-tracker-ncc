@@ -11,14 +11,44 @@ import { usersRoutes } from './modules/users/routes'
 import { nutritionistsRoutes } from './modules/nutritionists/routes'
 import { adminRoutes } from './modules/admin/routes'
 
+function getRequiredEnv(name: string): string {
+  const value = process.env[name]?.trim()
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`)
+  }
+  return value
+}
+
+function resolveCorsOrigin(): string | string[] {
+  const raw = process.env['CORS_ORIGIN']?.trim()
+  if (!raw) return '*'
+
+  const origins = raw
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+
+  if (origins.length <= 1) return origins[0] ?? '*'
+  return origins
+}
+
 export async function buildServer() {
+  getRequiredEnv('DATABASE_URL')
+  const jwtSecret = getRequiredEnv('JWT_SECRET')
+
   const app = Fastify({
     logger: { level: process.env['LOG_LEVEL'] ?? 'info' },
   })
 
-  await app.register(cors, { origin: process.env['CORS_ORIGIN'] ?? '*' })
+  await app.register(cors, {
+    origin: resolveCorsOrigin(),
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
 
-  await app.register(fjwt, { secret: process.env['JWT_SECRET']! })
+  await app.register(fjwt, { secret: jwtSecret })
+
+  app.get('/health', async () => ({ status: 'ok' }))
 
   if (process.env['NODE_ENV'] !== 'production') {
     await app.register(swaggerPlugin)
