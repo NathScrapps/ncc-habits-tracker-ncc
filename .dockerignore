@@ -1,0 +1,26 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build outputs
+**/dist
+**/.turbo
+
+# Environment
+.env
+**/.env
+**/.env.*
+
+# Dev / editor
+.git
+.github
+**/.DS_Store
+**/*.log
+**/coverage
+
+# Docs / spec files
+docs
+*.md
+TDD.md
+SPECH.md
+TECHNICAL_SPEC.md

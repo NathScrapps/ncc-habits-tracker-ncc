@@ -1,0 +1,26 @@
+{
+  "name": "habit-tracker",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev -w @habit-tracker/backend",
+    "dev:frontend": "npm run dev -w @habit-tracker/frontend",
+    "shared:build": "npm run build -w @habit-tracker/shared",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "type-check": "npm run type-check --workspaces --if-present"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.2",
+    "typescript": "^5.5.3"
+  }
+}

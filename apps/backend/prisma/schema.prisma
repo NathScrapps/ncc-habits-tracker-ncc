@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  PATIENT
+  NUTRITIONIST
+  ADMIN
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  patientProfile      PatientProfile?
+  nutritionistProfile NutritionistProfile?
+  refreshTokens       RefreshToken[]
+}
+
+model PatientProfile {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  fullName       String
+  nutritionistId String?
+  createdAt      DateTime @default(now())
+
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nutritionist NutritionistProfile? @relation(fields: [nutritionistId], references: [id], onDelete: SetNull)
+  habitEntries HabitEntry[]
+}
+
+model NutritionistProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  fullName  String
+  createdAt DateTime @default(now())
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patients PatientProfile[]
+}
+
+model HabitEntry {
+  id              String   @id @default(uuid())
+  patientId       String
+  date            DateTime @db.Date
+  waterIntakeMl   Int
+  exerciseMinutes Int
+  sleepHours      Decimal  @db.Decimal(4, 2)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@unique([patientId, date])
+  @@index([patientId])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
